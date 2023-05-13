@@ -28,10 +28,12 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.minecraft.client.item.ClampedModelPredicateProvider;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.Baker;
 import net.minecraft.client.render.model.ModelBakeSettings;
@@ -74,6 +76,7 @@ import techreborn.items.FrequencyTransmitterItem;
 import techreborn.items.armor.BatpackItem;
 import techreborn.items.tool.ChainsawItem;
 import techreborn.items.tool.industrial.NanosaberItem;
+import techreborn.client.render.entitys.NukeRenderer;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -141,18 +144,20 @@ public class TechRebornClient implements ClientModInitializer {
 			BlockRenderLayerMap.INSTANCE.putFluid(fluid.getFlowingFluid(), RenderLayer.getTranslucent());
 		}
 
-		BlockEntityRendererRegistry.register(TRBlockEntities.INDUSTRIAL_GRINDER, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.FUSION_CONTROL_COMPUTER, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.INDUSTRIAL_BLAST_FURNACE, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.VACUUM_FREEZER, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.FLUID_REPLICATOR, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.INDUSTRIAL_SAWMILL, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.DISTILLATION_TOWER, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.IMPLOSION_COMPRESSOR, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.GREENHOUSE_CONTROLLER, MultiblockRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.STORAGE_UNIT, StorageUnitRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.CABLE, CableCoverRenderer::new);
-		BlockEntityRendererRegistry.register(TRBlockEntities.WIND_MILL, TurbineRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.INDUSTRIAL_GRINDER, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.FUSION_CONTROL_COMPUTER, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.INDUSTRIAL_BLAST_FURNACE, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.VACUUM_FREEZER, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.FLUID_REPLICATOR, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.INDUSTRIAL_SAWMILL, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.DISTILLATION_TOWER, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.IMPLOSION_COMPRESSOR, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.GREENHOUSE_CONTROLLER, MultiblockRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.STORAGE_UNIT, StorageUnitRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.CABLE, CableCoverRenderer::new);
+		BlockEntityRendererFactories.register(TRBlockEntities.WIND_MILL, TurbineRenderer::new);
+
+		EntityRendererRegistry.register(TRContent.ENTITY_NUKE, NukeRenderer::new);
 
 		registerPredicateProvider(
 				BatpackItem.class,
