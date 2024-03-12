@@ -84,22 +84,47 @@ public class RebornExplosion extends Explosion {
 	public void applyExplosion() {
 		StopWatch watch = new StopWatch();
 		watch.start();
-		for (int tx = -radius; tx < radius + 1; tx++) {
-			for (int ty = -radius; ty < radius + 1; ty++) {
-				for (int tz = -radius; tz < radius + 1; tz++) {
-					if (Math.sqrt(Math.pow(tx, 2) + Math.pow(ty, 2) + Math.pow(tz, 2)) <= radius - 2) {
-						BlockPos pos = center.add(tx, ty, tz);
-						BlockState state = world.getBlockState(pos);
-						Block block = state.getBlock();
-						if (block != Blocks.BEDROCK && !state.isAir()) {
-							block.onDestroyedByExplosion(world, pos, this);
-							world.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
+		for (int dx = -radius; dx <= radius; dx++) {
+			for (int dy = -radius; dy <= radius; dy++) {
+				for (int dz = -radius; dz <= radius; dz++) {
+					double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+					if (distance <= radius - 2) {
+						BlockPos targetPos = center.add(dx, dy, dz);
+						if (!isProtectedByHighResistanceBlock(center, targetPos)) {
+							BlockState state = world.getBlockState(targetPos);
+							Block block = state.getBlock();
+							if (block != Blocks.BEDROCK && !state.isAir()) {
+								block.onDestroyedByExplosion(world, targetPos, this);
+								world.setBlockState(targetPos, Blocks.AIR.getDefaultState(), 3);
+							}
 						}
 					}
 				}
 			}
 		}
-		RebornCore.LOGGER.info("The explosion took" + watch + " to explode");
+		watch.stop();
+		RebornCore.LOGGER.info("The explosion took " + watch.getTime() + " milliseconds to explode");
+	}
+
+	private boolean isProtectedByHighResistanceBlock(BlockPos center, BlockPos targetPos) {
+		int steps = (int) center.getManhattanDistance(targetPos);
+
+		for (int step = 1; step <= steps; step++) {
+			// Calculate the intermediate position
+			double t = step / (double) steps;
+			int x = (int) Math.round(center.getX() * (1 - t) + targetPos.getX() * t);
+			int y = (int) Math.round(center.getY() * (1 - t) + targetPos.getY() * t);
+			int z = (int) Math.round(center.getZ() * (1 - t) + targetPos.getZ() * t);
+
+			BlockPos currentPos = new BlockPos(x, y, z);
+			BlockState state = world.getBlockState(currentPos);
+			float blastResistance = state.getBlock().getBlastResistance();
+
+			if (blastResistance >= 1300) {
+				return true; // Found a protecting block
+			}
+		}
+		return false; // No protecting block found
 	}
 
 	@Override
