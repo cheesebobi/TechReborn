@@ -27,8 +27,15 @@ package reborncore.common.explosion;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import org.apache.commons.lang3.time.StopWatch;
@@ -81,7 +88,7 @@ public class RebornExplosion extends Explosion {
 		return livingBase;
 	}
 
-	public void applyExplosion() {
+	public void applyExplosion(Entity owner) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 		for (int dx = -radius; dx <= radius; dx++) {
@@ -102,6 +109,28 @@ public class RebornExplosion extends Explosion {
 				}
 			}
 		}
+
+		radius = radius * 2;
+
+		// Damage players within the explosion radius
+		List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class,
+			new Box(center.getX() - radius, center.getY() - radius, center.getZ() - radius,
+				center.getX() + radius, center.getY() + radius, center.getZ() + radius),
+			(entity) -> true);
+
+		for (LivingEntity entity : entities) {
+			double distanceToEntity = center.getManhattanDistance(entity.getBlockPos());
+			int damage = (int) ((radius - distanceToEntity) / radius * 200);
+
+			// Check if the entity is protected by a high resistance block
+			if (!isProtectedByHighResistanceBlock(center, entity.getBlockPos())) {
+				entity.damage(entity.getWorld().getDamageSources().explosion(entity,owner), damage);
+			}
+
+			entity.damage(entity.getWorld().getDamageSources().explosion(entity,owner), 1);
+			entity.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, 6000, 9));
+		}
+
 		watch.stop();
 		RebornCore.LOGGER.info("The explosion took " + watch.getTime() + " milliseconds to explode");
 	}
@@ -125,16 +154,6 @@ public class RebornExplosion extends Explosion {
 			}
 		}
 		return false; // No protecting block found
-	}
-
-	@Override
-	public void collectBlocksAndDamageEntities() {
-		applyExplosion();
-	}
-
-	@Override
-	public void affectWorld(boolean spawnParticles) {
-		applyExplosion();
 	}
 
 	@Override

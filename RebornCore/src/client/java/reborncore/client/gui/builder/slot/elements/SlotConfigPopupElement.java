@@ -37,7 +37,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.World;
 import org.joml.Quaternionf;
 import reborncore.RebornCore;
@@ -79,19 +78,19 @@ public class SlotConfigPopupElement extends ElementBase {
 		BlockRenderManager dispatcher = MinecraftClient.getInstance().getBlockRenderManager();
 		BakedModel model = dispatcher.getModels().getModel(state.getBlock().getDefaultState());
 		MinecraftClient.getInstance().getTextureManager().bindTexture(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE);
-		drawState(gui, world, model, actualState, pos, dispatcher, 4, 23, RotationAxis.POSITIVE_Y.rotationDegrees(90F)); //left
-		drawState(gui, world, model, actualState, pos, dispatcher, 23, 4, RotationAxis.NEGATIVE_X.rotationDegrees(90F)); //top
-		drawState(gui, world, model, actualState, pos, dispatcher, 23, 23, null); //centre
-		drawState(gui, world, model, actualState, pos, dispatcher, 23, 26, RotationAxis.POSITIVE_X.rotationDegrees(90F)); //bottom
-		drawState(gui, world, model, actualState, pos, dispatcher, 42, 23, RotationAxis.POSITIVE_Y.rotationDegrees(90F)); //right
-		drawState(gui, world, model, actualState, pos, dispatcher, 26, 42, RotationAxis.POSITIVE_Y.rotationDegrees(180F)); //back
-
+		//drawState(gui, world, model, actualState, pos, dispatcher, 4, 23, RotationAxis.POSITIVE_Y.rotationDegrees(90F)); //left
+		//drawState(gui, world, model, actualState, pos, dispatcher, 23, 4, RotationAxis.NEGATIVE_X.rotationDegrees(90F)); //top
+		//drawState(gui, world, model, actualState, pos, dispatcher, 23, 23, null); //centre
+		//drawState(gui, world, model, actualState, pos, dispatcher, 23, 26, RotationAxis.POSITIVE_X.rotationDegrees(90F)); //bottom
+		//drawState(gui, world, model, actualState, pos, dispatcher, 42, 23, RotationAxis.POSITIVE_Y.rotationDegrees(90F)); //right
+		//drawState(gui, world, model, actualState, pos, dispatcher, 26, 42, RotationAxis.POSITIVE_Y.rotationDegrees(180F)); //back
 		drawSlotSateColor(matrixStack, gui.getMachine(), MachineFacing.UP.getFacing(machine), id, 22, -1, gui);
 		drawSlotSateColor(matrixStack, gui.getMachine(), MachineFacing.FRONT.getFacing(machine), id, 22, 18, gui);
 		drawSlotSateColor(matrixStack, gui.getMachine(), MachineFacing.DOWN.getFacing(machine), id, 22, 37, gui);
 		drawSlotSateColor(matrixStack, gui.getMachine(), MachineFacing.RIGHT.getFacing(machine), id, 41, 18, gui);
 		drawSlotSateColor(matrixStack, gui.getMachine(), MachineFacing.BACK.getFacing(machine), id, 41, 37, gui);
 		drawSlotSateColor(matrixStack, gui.getMachine(), MachineFacing.LEFT.getFacing(machine), id, 3, 18, gui);
+
 	}
 
 	@Override
@@ -157,12 +156,14 @@ public class SlotConfigPopupElement extends ElementBase {
 			RebornCore.LOGGER.debug("Hmm, this isn't supposed to happen");
 			return;
 		}
+
 		SlotConfiguration.SlotConfig slotConfig = slotConfigHolder.getSideDetail(side);
 		Color color = switch (slotConfig.getSlotIO().getIoConfig()) {
 			case INPUT -> new Color(0, 0, 255, 128);
 			case OUTPUT -> new Color(255, 69, 0, 128);
 			default -> new Color(0, 0, 0, 0);
 		};
+
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		GuiUtil.drawGradientRect(matrices, sx, sy, 18, 18, color.getColor(), color.getColor());
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -186,20 +187,31 @@ public class SlotConfigPopupElement extends ElementBase {
 						int y,
 						Quaternionf quaternion) {
 
+		// Starting matrix stack and applying initial transformations
 		MatrixStack matrixStack = new MatrixStack();
 		matrixStack.push();
-		matrixStack.translate(8 + gui.getGuiLeft() + this.x + x, 8 + gui.getGuiTop() + this.y + y, 512);
-		matrixStack.scale(16F, 16F, 16F);
-		matrixStack.translate(0.5F, 0.5F, 0.5F);
+
+		// Aligning the start position with drawSlotSateColor logic
+		int adjustedX = x + getX() + gui.getGuiLeft();
+		int adjustedY = y + getY() + gui.getGuiTop();
+
+		// Translating to the adjusted position, considering the GUI's scale and offsets
+		matrixStack.translate(adjustedX, adjustedY, 512);
+		matrixStack.scale(16F, 16F, 16F); // Adjusting scale if necessary
+		matrixStack.translate(5F, 5F, 0.5F);
 		matrixStack.scale(-1, -1, -1);
 
+		// Applying optional quaternion rotation
 		if (quaternion != null) {
 			matrixStack.multiply(quaternion);
 		}
 
+		// Drawing the model
 		VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 		dispatcher.getModelRenderer().render(matrixStack.peek(), immediate.getBuffer(RenderLayer.getSolid()), actualState, model, 1F, 1F, 1F, OverlayTexture.getU(15F), OverlayTexture.DEFAULT_UV);
 		immediate.draw();
+
+		// Cleaning up
 		matrixStack.pop();
 	}
 
