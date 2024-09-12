@@ -28,6 +28,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -51,6 +52,11 @@ public class BlockNuke extends BaseBlock {
 	public BlockNuke() {
 		super(Block.Settings.of(Material.TNT));
 		this.setDefaultState(this.getStateManager().getDefaultState().with(OVERLAY, false));
+	}
+
+	@Override
+	public PistonBehavior getPistonBehavior(BlockState state) {
+		return PistonBehavior.BLOCK;
 	}
 
 	public void ignite(World worldIn, BlockPos pos, BlockState state, LivingEntity igniter) {

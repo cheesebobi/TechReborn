@@ -50,6 +50,7 @@ import techreborn.init.TRContent;
 import techreborn.init.TRDispenserBehavior;
 import techreborn.init.template.TechRebornTemplates;
 import techreborn.items.DynamicCellItem;
+import techreborn.items.armor.QuantumSuitEventHandler;
 import techreborn.packets.ServerboundPackets;
 import techreborn.utils.PoweredCraftingHandler;
 import techreborn.world.WorldGenerator;
@@ -105,6 +106,8 @@ public class TechReborn implements ModInitializer {
 		ComposterBlock.ITEM_TO_LEVEL_INCREASE_CHANCE.put(TRContent.SmallDusts.SAW.asItem(), 0.1F);
 
 		TechRebornTemplates.init();
+
+		QuantumSuitEventHandler.register();
 
 		LOGGER.info("TechReborn setup done!");
 	}

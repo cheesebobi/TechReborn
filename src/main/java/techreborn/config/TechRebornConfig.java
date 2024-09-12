@@ -289,6 +289,10 @@ public class TechRebornConfig {
 	@Config(config = "items", category = "power", key = "quantumSuitSprintingCost", comment = "Quantum Suit Sprinting Cost")
 	public static long quantumSuitSprintingCost = 20;
 
+	@Config(config = "items", category = "power", key = "quantumSuitDamageCost", comment = "Quantum Suit Damage Cost")
+	public static long quantumSuitDamageCost = 10000;
+
+
 	@Config(config = "items", category = "power", key = "quantumSuitFireExtinguishCost", comment = "Quantum Suit Cost for Fire Extinguish")
 	public static long fireExtinguishCost = 50;
 
