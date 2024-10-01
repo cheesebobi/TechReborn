@@ -56,7 +56,6 @@ import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
-import org.jetbrains.annotations.Nullable;
 import reborncore.api.ToolManager;
 import reborncore.common.blocks.BlockWrenchEventHandler;
 import reborncore.common.util.WrenchUtils;
@@ -109,7 +108,6 @@ public class CableBlock extends BlockWithEntity implements Waterloggable {
 		return BlockRenderType.MODEL;
 	}
 
-	@Nullable
 	@Override
 	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
 		return new CableBlockEntity(pos, state, type);
@@ -270,7 +268,7 @@ public class CableBlock extends BlockWithEntity implements Waterloggable {
 	}
 
 	@Override
-	public BlockState getAppearance(BlockState state, BlockRenderView renderView, BlockPos pos, Direction side, @Nullable BlockState sourceState, @Nullable BlockPos sourcePos) {
+	public BlockState getAppearance(BlockState state, BlockRenderView renderView, BlockPos pos, Direction side, BlockState sourceState, BlockPos sourcePos) {
 		if (state.get(COVERED)) {
 			final BlockState cover;
 

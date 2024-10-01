@@ -24,6 +24,8 @@
 
 package techreborn.items.armor;
 
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -92,11 +94,8 @@ public class CloakingDeviceItem extends TRArmourItem implements RcEnergyItem, Ar
 	@Override
 	public void tickArmor(ItemStack stack, PlayerEntity playerEntity) {
 		if (tryUseEnergy(stack, cost)) {
+			playerEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.INVISIBILITY, 20, 1, false, false));
 			playerEntity.setInvisible(true);
-		} else {
-			if (playerEntity.isInvisible()) {
-				playerEntity.setInvisible(false);
-			}
 		}
 	}
 
@@ -104,7 +103,8 @@ public class CloakingDeviceItem extends TRArmourItem implements RcEnergyItem, Ar
 	@Override
 	public void onRemoved(PlayerEntity playerEntity) {
 		if (playerEntity.isInvisible()) {
-			playerEntity.setInvisible(false);
+			//playerEntity.setInvisible(false);
+			//playerEntity.removeStatusEffect(StatusEffects.INVISIBILITY);
 		}
 	}
 }

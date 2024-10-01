@@ -1,3 +1,27 @@
+/*
+ * This file is part of TechReborn, licensed under the MIT License (MIT).
+ *
+ * Copyright (c) 2024 TechReborn
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package techreborn.items.armor;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -8,7 +32,6 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -56,11 +79,13 @@ public class QuantumSuitItem extends TRArmourItem implements ArmorBlockEntityTic
 			long maxEnergy = getEnergyCapacity();
 
 			// Calculate the armor and knockback resistance values based on current energy level
-			double armorValue = 15.0 * ((double) currentEnergy / maxEnergy) + 5;
-			double knockbackResistanceValue = 1.9 * ((double) currentEnergy / maxEnergy) + 0.1;
+			double armorValue = 5.0 * ((double) currentEnergy / maxEnergy) + 5;
+			double toughnessValue = 2.0 * ((double) currentEnergy / maxEnergy) + 1;
+			double knockbackResistanceValue = 0.9 * ((double) currentEnergy / maxEnergy) + 0.1;
 
 			// Add the dynamic attribute modifiers
 			attributes.put(EntityAttributes.GENERIC_ARMOR, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor modifier", armorValue, EntityAttributeModifier.Operation.ADDITION));
+			attributes.put(EntityAttributes.GENERIC_ARMOR_TOUGHNESS, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor toughness modifier", toughnessValue, EntityAttributeModifier.Operation.ADDITION));
 			attributes.put(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Knockback modifier", knockbackResistanceValue, EntityAttributeModifier.Operation.ADDITION));
 		}
 
