@@ -1,7 +1,7 @@
 /*
  * This file is part of TechReborn, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2020 TechReborn
+ * Copyright (c) 2024 TechReborn
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,10 +52,10 @@ public class QuantumSuitItem extends TRArmourItem implements ArmorBlockEntityTic
 	public final long breathingCost = TechRebornConfig.quantumSuitBreathingCost;
 	public final long sprintingCost = TechRebornConfig.quantumSuitSprintingCost;
 	public final long fireExtinguishCost = TechRebornConfig.fireExtinguishCost;
+	public final long damageCost = TechRebornConfig.quantumSuitDamageCost;
 
 	public final boolean enableSprint = TechRebornConfig.quantumSuitEnableSprint;
 	public final boolean enableFlight = TechRebornConfig.quantumSuitEnableFlight;
-
 
 	public QuantumSuitItem(ArmorMaterial material, Type slot) {
 		super(material, slot, new Item.Settings().maxDamage(-1).maxCount(1));
@@ -73,9 +73,20 @@ public class QuantumSuitItem extends TRArmourItem implements ArmorBlockEntityTic
 			}
 		}
 
-		if (equipmentSlot == this.getSlotType() && getStoredEnergy(stack) > 0) {
-			attributes.put(EntityAttributes.GENERIC_ARMOR, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor modifier", 20, EntityAttributeModifier.Operation.ADDITION));
-			attributes.put(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Knockback modifier", 2, EntityAttributeModifier.Operation.ADDITION));
+		if (equipmentSlot == this.getSlotType()) {
+			// Get the current energy and maximum energy
+			long currentEnergy = getStoredEnergy(stack);
+			long maxEnergy = getEnergyCapacity();
+
+			// Calculate the armor and knockback resistance values based on current energy level
+			double armorValue = 5.0 * ((double) currentEnergy / maxEnergy) + 5;
+			double toughnessValue = 2.0 * ((double) currentEnergy / maxEnergy) + 1;
+			double knockbackResistanceValue = 0.9 * ((double) currentEnergy / maxEnergy) + 0.1;
+
+			// Add the dynamic attribute modifiers
+			attributes.put(EntityAttributes.GENERIC_ARMOR, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor modifier", armorValue, EntityAttributeModifier.Operation.ADDITION));
+			attributes.put(EntityAttributes.GENERIC_ARMOR_TOUGHNESS, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor toughness modifier", toughnessValue, EntityAttributeModifier.Operation.ADDITION));
+			attributes.put(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Knockback modifier", knockbackResistanceValue, EntityAttributeModifier.Operation.ADDITION));
 		}
 
 		return ImmutableMultimap.copyOf(attributes);
@@ -90,9 +101,14 @@ public class QuantumSuitItem extends TRArmourItem implements ArmorBlockEntityTic
 						playerEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 5, 1));
 					}
 				}
+				if (playerEntity.world.getLightLevel(playerEntity.getBlockPos()) < 8) {
+					if (tryUseEnergy(stack, breathingCost)) {
+						playerEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 500, 0));
+					}
+				}
 				break;
 			case CHEST:
-				if (enableFlight){
+				if (enableFlight) {
 					if (getStoredEnergy(stack) > flyCost) {
 						playerEntity.getAbilities().allowFlying = true;
 						if (playerEntity.getAbilities().flying) {
@@ -121,7 +137,7 @@ public class QuantumSuitItem extends TRArmourItem implements ArmorBlockEntityTic
 				}
 				break;
 			default:
-
+				break;
 		}
 	}
 
