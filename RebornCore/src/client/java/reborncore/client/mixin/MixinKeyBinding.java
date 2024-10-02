@@ -31,14 +31,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import reborncore.client.ClientJumpEvent;
 
-@Mixin(KeyBinding.class)
+@Mixin(value = KeyBinding.class, priority = 1100)
 public abstract class MixinKeyBinding {
-	@Inject(method = "onKeyPressed", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/KeyBinding;timesPressed:I"), locals = LocalCapture.CAPTURE_FAILHARD)
-	private static void onKeyPressed(InputUtil.Key key, CallbackInfo ci, KeyBinding keyBinding) {
-		if (keyBinding == MinecraftClient.getInstance().options.jumpKey) {
+	@Inject(method = "onKeyPressed", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/KeyBinding;timesPressed:I"))
+	private static void onKeyPressed(InputUtil.Key key, CallbackInfo ci) {
+		if (key == MinecraftClient.getInstance().options.jumpKey.getDefaultKey()) {
 			ClientJumpEvent.EVENT.invoker().jump();
 		}
 	}

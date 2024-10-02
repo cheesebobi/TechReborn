@@ -29,6 +29,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -36,6 +39,7 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import reborncore.api.IToolDrop;
 import reborncore.common.blockentity.MachineBaseBlockEntity;
 import reborncore.common.blockentity.RedstoneConfiguration;
@@ -141,12 +145,29 @@ public class ElevatorBlockEntity extends PowerAcceptorBlockEntity implements ITo
 		if (getStored() < energy) {
 			return false;
 		}
+
 		playTeleportSoundAt(getPos());
+		spawnTeleportParticles((ServerWorld) getWorld(), getPos()); // Add particle effect at starting point
+
 		FabricDimensions.teleport(player, (ServerWorld)getWorld(),
 			new TeleportTarget(Vec3d.ofBottomCenter(new Vec3i(targetPos.getX(), targetPos.getY(), targetPos.getZ())), Vec3d.ZERO, player.getYaw(), player.getPitch()));
+
 		useEnergy(energy);
+
+		spawnTeleportParticles((ServerWorld) getWorld(), targetPos); // Add particle effect at destination
 		playTeleportSoundAt(targetPos);
+
 		return true;
+	}
+
+	private void spawnTeleportParticles(ServerWorld world, BlockPos pos) {
+		// Using Vector3f for blue color
+		Vector3f blueColor = new Vector3f(0.4F, 0.7F, 1.0F);
+		world.spawnParticles(new DustParticleEffect(blueColor, 1.0F), // Blue color and scale
+			pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, // Position
+			20, // Number of particles
+			0.3, 0.5, 0.3, // Particle spread (X, Y, Z)
+			0.02); // Speed of particles
 	}
 
 	protected void playTeleportSoundAt(final BlockPos targetPos) {
