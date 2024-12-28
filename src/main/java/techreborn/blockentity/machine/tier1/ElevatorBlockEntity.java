@@ -30,7 +30,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.particle.ParticleTypes;
 
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
