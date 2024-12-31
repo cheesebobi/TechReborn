@@ -27,6 +27,7 @@ package techreborn.init;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.MapColor;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.sound.BlockSoundGroup;
 
 public class TRBlockSettings {
@@ -44,7 +45,8 @@ public class TRBlockSettings {
 	public static FabricBlockSettings nuke() {
 		return FabricBlockSettings.create()
 			.strength(2F, 2F)
-			.mapColor(MapColor.BRIGHT_RED);
+			.mapColor(MapColor.BRIGHT_RED)
+			.pistonBehavior(PistonBehavior.BLOCK);
 	}
 
 	public static FabricBlockSettings reinforcedGlass() {
