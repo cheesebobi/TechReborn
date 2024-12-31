@@ -27,17 +27,25 @@ package reborncore.client.mixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import reborncore.client.ClientJumpEvent;
 
-@Mixin(KeyBinding.class)
+import java.util.Map;
+
+@Mixin(value = KeyBinding.class, priority = 1100)
 public abstract class MixinKeyBinding {
-	@Inject(method = "onKeyPressed", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/KeyBinding;timesPressed:I"), locals = LocalCapture.CAPTURE_FAILHARD)
-	private static void onKeyPressed(InputUtil.Key key, CallbackInfo ci, KeyBinding keyBinding) {
+	@Shadow
+	@Final
+	private static Map<InputUtil.Key, KeyBinding> KEY_TO_BINDINGS;
+
+	@Inject(method = "onKeyPressed", at = @At(value = "FIELD", target = "Lnet/minecraft/client/option/KeyBinding;timesPressed:I"))
+	private static void onKeyPressed(InputUtil.Key key, CallbackInfo ci) {
+		KeyBinding keyBinding = KEY_TO_BINDINGS.get(key);
 		if (keyBinding == MinecraftClient.getInstance().options.jumpKey) {
 			ClientJumpEvent.EVENT.invoker().jump();
 		}
