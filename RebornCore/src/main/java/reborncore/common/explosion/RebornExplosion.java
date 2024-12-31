@@ -28,7 +28,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import org.apache.commons.lang3.time.StopWatch;
@@ -102,6 +107,34 @@ public class RebornExplosion extends Explosion {
 				}
 			}
 		}
+
+		// damage entities
+		double damageRadius = radius * 2;
+		Vec3d centerD = center.toCenterPos();
+
+		// RebornCore doesn't assign the attacker to the damage source of the Explosion,
+		// so we create a more meaningful damage source here.
+		DamageSource damageSource = world.getDamageSources().explosion(null, this.getCausingEntity());
+
+		List<LivingEntity> entities = world.getEntitiesByClass(LivingEntity.class,
+			new Box(
+				centerD.subtract(damageRadius, damageRadius, damageRadius),
+				centerD.add(damageRadius, damageRadius, damageRadius)),
+			entity -> true
+		);
+
+		for (LivingEntity entity : entities) {
+			double distanceToEntity = center.getManhattanDistance(entity.getBlockPos());
+			int damage = (int) ((damageRadius - distanceToEntity) / (damageRadius * 200));
+
+			if (damage > 0 && !isProtectedByHighResistanceBlock(center, entity.getBlockPos())) {
+				entity.damage(damageSource, damage);
+			}
+
+			entity.addStatusEffect(new StatusEffectInstance(StatusEffects.POISON, 6000, 9));
+		}
+		// end damage entities
+
 		watch.stop();
 		RebornCore.LOGGER.info("The explosion took " + watch.getTime() + " milliseconds to explode");
 	}
