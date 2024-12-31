@@ -70,9 +70,18 @@ public class QuantumSuitItem extends TREnergyArmourItem implements ArmorBlockEnt
 			}
 		}
 
-		if (equipmentSlot == this.getSlotType() && getStoredEnergy(stack) > 0) {
-			attributes.put(EntityAttributes.GENERIC_ARMOR, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor modifier", 20, EntityAttributeModifier.Operation.ADDITION));
-			attributes.put(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Knockback modifier", 2, EntityAttributeModifier.Operation.ADDITION));
+		if (equipmentSlot == this.getSlotType()) {
+			// Get the current energy and maximum energy
+			long currentEnergy = getStoredEnergy(stack);
+			long maxEnergy = getEnergyCapacity();
+			// Calculate the armor and knockback resistance values based on current energy level
+			double armorValue = 15.0 * ((double) currentEnergy / maxEnergy) + 5;
+			double toughnessValue = 2.0 * ((double) currentEnergy / maxEnergy) + 1;
+			double knockbackResistanceValue = 1.9 * ((double) currentEnergy / maxEnergy) + 0.1;
+			// Add the dynamic attribute modifiers
+			attributes.put(EntityAttributes.GENERIC_ARMOR, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor modifier", armorValue, EntityAttributeModifier.Operation.ADDITION));
+			attributes.put(EntityAttributes.GENERIC_ARMOR_TOUGHNESS, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Armor toughness modifier", toughnessValue, EntityAttributeModifier.Operation.ADDITION));
+			attributes.put(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, new EntityAttributeModifier(MODIFIERS[getSlotType().getEntitySlotId()], "Knockback modifier", knockbackResistanceValue, EntityAttributeModifier.Operation.ADDITION));
 		}
 
 		return ImmutableMultimap.copyOf(attributes);
@@ -85,6 +94,11 @@ public class QuantumSuitItem extends TREnergyArmourItem implements ArmorBlockEnt
 			case HEAD -> {
 				if (playerEntity.isSubmergedInWater() && tryUseEnergy(stack, TechRebornConfig.quantumSuitBreathingCost)) {
 					playerEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.WATER_BREATHING, 5, 1));
+				}
+
+				if (playerEntity.getEntityWorld().getLightLevel(playerEntity.getBlockPos()) < 8 &&
+					tryUseEnergy(stack, TechRebornConfig.quantumSuitBreathingCost)) {
+					playerEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, 500, 0));
 				}
 			}
 			case CHEST -> {

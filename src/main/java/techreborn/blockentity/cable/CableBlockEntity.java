@@ -119,7 +119,8 @@ public class CableBlockEntity extends BlockEntity
 		}
 		Block block = world.getBlockState(pos).getBlock();
 		if (block instanceof CableBlock) {
-			return ((CableBlock) block).type;
+			cableType = ((CableBlock) block).type;
+			return cableType;
 		}
 		//Something has gone wrong if this happens
 		return TRContent.Cables.COPPER;
@@ -174,7 +175,7 @@ public class CableBlockEntity extends BlockEntity
 		if (targets == null) {
 			BlockState newBlockState = getCachedState();
 
-			targets = new ArrayList<>();
+			targets = new ArrayList<>(6);
 			for (Direction direction : Direction.values()) {
 				boolean foundSomething = false;
 
